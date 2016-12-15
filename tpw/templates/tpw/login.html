@@ -1,0 +1,31 @@
+<div align="center">
+    <br/><br/><br/><br/>
+    {% if error %}
+        <font color="red">{{ error }}</font>
+        <br/><br/>
+    {% endif %}
+    <form action="{% url 'tpw:authenticate' %}" method="post">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <td>
+                    <label>Username:</label>
+                </td>
+                <td>
+                    <input name="username" type="text"/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>Password:</label>
+                </td>
+                <td>
+                    <input name="password" type="password"/>
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" name="referer" value="{{ referer }}"/>
+        <br/><br/>
+        <input type="submit" value="Login"/>
+    </form>
+</div>
