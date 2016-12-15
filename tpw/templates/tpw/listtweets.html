@@ -1,0 +1,75 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'tpw/style.css' %}"/>
+<script type="text/javascript">
+    function resetTweet(id) {
+        if(confirm("Are you sure you want to reset tweet data?") == true) {
+            var request = new XMLHttpRequest();
+
+            request.onreadystatechange = function() {
+                if(request.readyState == 4 && request.status == 200) {
+                    location.reload();
+                }
+            }
+
+            request.open("GET", "/tweetcontrol/resettweet?tweet=" + id);
+            request.send(null);
+        }
+    }
+</script>
+
+{% if not dbconnected %}
+    <p class="coloredformat">Failed to connect to database</p>
+{% endif %}
+{% if not tweetconnected %}
+    <p class="coloredformat">Failed to connect to twitter account</p>
+{% endif %}
+<br/>
+<a href="{% url 'tpw:addtweet' %}"><button type="button">Add</button></a>
+<a href="{% url 'tpw:index' %}"><button type="button">Home</button></a>
+<a href="{% url 'tpw:outbox' %}"><button type="button">Outbox</button></a>
+<a href="{% url 'tpw:tweetslog' %}"><button type="button">Log</button></a>
+<a href="https://twitter.com/Provencompany" target="_blank"><button type="button">View on Twitter</button></a>
+<br/><br/>
+{% if tweets_list %}
+    {% if tweets_list|length == 1 %}
+        <h3>There is 1 tweet registered:</h3>
+    {% else %}
+        <h3>There are {{ tweets_list|length }} tweets registered:</h3>
+    {% endif %}
+    <br/>
+    {% for community in communities_list %}
+        {% if community.hasTweets %}
+            <h2>Tweets for {{ community.name }}</h2>
+                <table class="cooltable">
+                    <tr>
+                        <th class="cooltabletd">#</th>
+                        <th class="cooltableth">Action</th>
+                        <th class="cooltableth">Frequency</th>
+                        <th class="cooltableth">Rule</th>
+                        <th class="cooltableth">Message</th>
+                        <th class="cooltableth">Next</th>
+                    </tr>
+                    {% for tweet in tweets_list %}
+                    {% if tweet.community.id == community.id %}
+                    <tr>
+                        <td class="cooltabletd">{{ forloop.counter }}</td>
+                        <td class="cooltabletd">
+                            <a href="{% url 'tpw:edittweet' tweet.id %}"><button class="actionbtn" type="button">Edit</button></a><br/>
+                            <a href="{% url 'tpw:deletetweet' tweet.id %}"><button class="actionbtn" type="button">Delete</button></a><br/>
+                            <button type="button" class="actionbtn" onclick="resetTweet({{ tweet.id }})">Reset</button>
+                        </td>
+                        <td class="cooltabletd" align="center">{{ tweet.frequency }}</td>
+                        <td class="cooltabletd">{{ tweet.rule }}</td>
+                        <td class="cooltabletd">{{ tweet.message }}</td>
+                        <td class="cooltabletd">{{ tweet.formatted_next_trigger }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </table>
+                <br/>
+        {% endif %}
+    {% endfor %}
+    <br/>
+{% else %}
+    <p>Could not find any tweets.. So add some!</p>
+{% endif %}
